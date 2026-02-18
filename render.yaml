@@ -1,0 +1,54 @@
+databases:
+  - name: n8n-postgres
+    databaseName: n8n
+    user: n8n
+    plan: free
+
+services:
+  - type: web
+    name: pocket-tts
+    runtime: docker
+    plan: standard
+    dockerfilePath: ./pocket-tts/Dockerfile
+    dockerContext: ./pocket-tts
+    envVars:
+      - key: HF_TOKEN
+        sync: false
+
+  - type: web
+    name: n8n
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./n8n/Dockerfile
+    dockerContext: ./n8n
+    envVars:
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        fromDatabase:
+          name: n8n-postgres
+          property: host
+      - key: DB_POSTGRESDB_PORT
+        fromDatabase:
+          name: n8n-postgres
+          property: port
+      - key: DB_POSTGRESDB_DATABASE
+        fromDatabase:
+          name: n8n-postgres
+          property: database
+      - key: DB_POSTGRESDB_USER
+        fromDatabase:
+          name: n8n-postgres
+          property: user
+      - key: DB_POSTGRESDB_PASSWORD
+        fromDatabase:
+          name: n8n-postgres
+          property: password
+      - key: N8N_HOST
+        value: 0.0.0.0
+      - key: N8N_PORT
+        value: 5678
+      - key: WEBHOOK_URL
+        sync: false
+      - key: N8N_ENCRYPTION_KEY
+        generateValue: true
