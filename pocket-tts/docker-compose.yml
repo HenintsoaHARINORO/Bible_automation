@@ -1,0 +1,8 @@
+services:
+  pocket-tts:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HF_TOKEN=${HF_TOKEN:-}
+    restart: unless-stopped

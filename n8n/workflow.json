@@ -1,0 +1,341 @@
+{
+  "name": "Bible reading",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const books = [\n  [\"Genesis\", 50], [\"Exodus\", 40], [\"Leviticus\", 27], [\"Numbers\", 36],\n  [\"Deuteronomy\", 34], [\"Joshua\", 24], [\"Judges\", 21], [\"Ruth\", 4],\n  [\"1 Samuel\", 31], [\"2 Samuel\", 24], [\"1 Kings\", 22], [\"2 Kings\", 25],\n  [\"1 Chronicles\", 29], [\"2 Chronicles\", 36], [\"Ezra\", 10], [\"Nehemiah\", 13],\n  [\"Esther\", 10], [\"Job\", 42], [\"Psalms\", 150], [\"Proverbs\", 31],\n  [\"Ecclesiastes\", 12], [\"Song of Solomon\", 8], [\"Isaiah\", 66],\n  [\"Jeremiah\", 52], [\"Lamentations\", 5], [\"Ezekiel\", 48], [\"Daniel\", 12],\n  [\"Hosea\", 14], [\"Joel\", 3], [\"Amos\", 9], [\"Obadiah\", 1], [\"Jonah\", 4],\n  [\"Micah\", 7], [\"Nahum\", 3], [\"Habakkuk\", 3], [\"Zephaniah\", 3],\n  [\"Haggai\", 2], [\"Zechariah\", 14], [\"Malachi\", 4],\n  [\"Matthew\", 28], [\"Mark\", 16], [\"Luke\", 24], [\"John\", 21],\n  [\"Acts\", 28], [\"Romans\", 16], [\"1 Corinthians\", 16], [\"2 Corinthians\", 13],\n  [\"Galatians\", 6], [\"Ephesians\", 6], [\"Philippians\", 4], [\"Colossians\", 4],\n  [\"1 Thessalonians\", 5], [\"2 Thessalonians\", 3], [\"1 Timothy\", 6],\n  [\"2 Timothy\", 4], [\"Titus\", 3], [\"Philemon\", 1], [\"Hebrews\", 13],\n  [\"James\", 5], [\"1 Peter\", 5], [\"2 Peter\", 3], [\"1 John\", 5],\n  [\"2 John\", 1], [\"3 John\", 1], [\"Jude\", 1], [\"Revelation\", 22]\n];\n\n// Exact max verse per chapter per book (per-chapter array)\nconst verseCount = {\n  \"Genesis\":    [31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,23,57,38,34,34,28,34,31,22,33,26],\n  \"Exodus\":     [22,25,22,31,23,30,25,32,35,29,10,51,22,31,27,36,16,27,25,26,36,31,33,18,40,37,21,43,46,38,18,35,23,35,35,38,29,31,43,38],\n  \"Leviticus\":  [17,16,17,35,19,30,38,36,24,20,47,8,59,57,33,34,16,30,24,16,15,18,21,20,25,29,22,31,25],\n  \"Numbers\":    [54,34,51,49,31,27,89,26,23,36,31,16,23,21,39,21,25,19,27,26,31,25,24,32,33,20,52,22,32,23,22,27,27,33,33,28,30,31,24],\n  \"Deuteronomy\":[46,37,29,49,33,25,26,20,29,22,32,32,18,29,23,22,20,22,21,20,23,30,25,22,19,19,26,68,29,20,30,52,29,12],\n  \"Joshua\":     [18,24,17,24,15,27,26,35,27,43,23,24,33,15,63,10,18,28,51,9,45,34,16,33],\n  \"Judges\":     [36,23,31,24,31,40,25,35,57,18,40,15,25,20,20,31,13,31,30,48,25],\n  \"Ruth\":       [22,23,18,22],\n  \"1 Samuel\":   [28,36,21,22,12,21,17,22,27,27,15,25,23,52,35,23,58,30,24,42,15,23,29,22,44,25,12,25,11,31,13],\n  \"2 Samuel\":   [27,32,39,12,25,23,29,18,13,19,27,31,39,33,37,23,29,33,43,26,22,51,39,25],\n  \"1 Kings\":    [53,46,28,34,18,38,51,66,28,29,43,33,34,31,34,34,24,46,21,43,29,53],\n  \"2 Kings\":    [18,25,27,44,27,33,20,29,37,36,21,21,25,29,38,20,41,37,37,21,26,20,37,20,30],\n  \"1 Chronicles\":[54,55,24,43,26,81,40,40,44,14,47,40,14,17,29,43,27,17,19,8,30,19,32,31,31,32,34,21,30],\n  \"2 Chronicles\":[17,18,17,22,14,42,22,18,31,19,23,16,22,15,19,14,19,34,11,37,20,12,21,27,28,23,9,27,36,27,21,33,25,33,27,23],\n  \"Ezra\":       [11,70,13,24,17,22,28,36,15,44],\n  \"Nehemiah\":   [11,20,32,23,19,19,73,18,38,39,36,47,31],\n  \"Esther\":     [22,23,15,17,14,14,10,17,32,3],\n  \"Job\":        [22,13,26,21,27,30,21,22,35,22,20,25,28,22,35,22,16,21,29,29,34,30,17,25,6,14,23,28,25,31,40,22,33,37,16,33,24,41,30,24,34,17],\n  \"Psalms\":     [6,12,8,8,12,10,17,9,20,18,7,8,6,7,5,11,15,50,14,9,13,31,6,10,22,12,14,9,11,12,24,11,22,22,28,12,40,22,13,17,13,11,5,26,17,11,9,14,20,23,19,9,6,7,23,13,11,11,17,12,8,12,11,10,13,20,7,35,36,5,24,20,28,23,10,12,20,72,13,19,16,8,18,12,13,17,7,18,52,17,16,15,5,23,11,13,12,9,9,5,8,28,22,35,45,48,43,13,31,7,10,10,9,8,18,19,2,29,176,7,8,9,4,8,5,6,5,6,8,8,3,18,3,3,21,26,9,8,24,13,10,7,12,15,21,10,20,14,9,6],\n  \"Proverbs\":   [33,22,35,27,23,35,27,36,18,32,31,28,25,35,33,33,28,24,29,30,31,29,35,34,28,28,27,28,62,33,44,37,13],\n  \"Ecclesiastes\":[18,26,22,17,19,12,29,17,18,20,10,14],\n  \"Song of Solomon\":[17,17,11,16,16,13,13,14],\n  \"Isaiah\":     [31,22,26,6,30,13,25,22,21,34,16,6,22,32,9,14,14,7,25,6,17,25,18,23,12,21,13,29,24,33,9,20,24,17,10,22,38,22,8,31,29,25,28,28,25,13,15,22,26,11,23,15,12,17,13,12,21,14,21,22,11,12,19,12,25,24],\n  \"Jeremiah\":   [19,37,25,31,31,30,34,22,26,25,23,17,27,22,21,21,27,23,15,18,14,30,40,10,38,24,22,17,32,24,40,44,26,22,19,32,21,28,18,16,18,22,13,30,5,28,7,47,39,46,64,34],\n  \"Lamentations\":[22,22,66,22,22],\n  \"Ezekiel\":    [28,10,27,17,17,14,27,18,11,22,25,28,23,23,8,63,24,32,14,49,32,31,49,27,17,21,36,26,21,26,18,32,33,31,15,38,28,23,29,49,26,20,27,31,25,24,23,35],\n  \"Daniel\":     [21,49,30,37,31,28,28,27,27,21,45,13],\n  \"Hosea\":      [11,23,5,19,15,11,16,14,17,15,12,14,16,9],\n  \"Joel\":       [20,32,21],\n  \"Amos\":       [15,16,15,13,27,14,17,14,15],\n  \"Obadiah\":    [21],\n  \"Jonah\":      [17,10,10,11],\n  \"Micah\":      [16,13,12,13,15,16,20],\n  \"Nahum\":      [15,13,19],\n  \"Habakkuk\":   [17,20,19],\n  \"Zephaniah\":  [18,15,20],\n  \"Haggai\":     [15,23],\n  \"Zechariah\":  [21,13,10,14,11,15,14,23,17,12,17,14,9,21],\n  \"Malachi\":    [14,17,18,6],\n  \"Matthew\":    [25,23,17,25,48,34,29,34,38,42,30,50,58,36,39,28,27,35,30,34,46,46,39,51,46,75,66,20],\n  \"Mark\":       [45,28,35,41,43,56,37,38,50,52,33,44,37,72,47,20],\n  \"Luke\":       [80,52,38,44,39,49,50,56,62,42,54,59,35,35,32,31,37,43,48,47,38,71,56,53],\n  \"John\":       [51,25,36,54,47,71,53,59,41,42,57,50,38,31,27,33,26,40,42,31,25],\n  \"Acts\":       [26,47,26,37,42,15,60,40,43,48,30,25,52,28,41,40,34,28,41,38,40,30,35,27,27,32,44,31],\n  \"Romans\":     [32,29,31,25,21,23,25,39,33,21,36,21,14,23,33,27],\n  \"1 Corinthians\":[31,16,23,21,13,20,40,34,16,30,28,12,14,23,40,22],\n  \"2 Corinthians\":[17,18,18,21,17,22,16,21,15,34,33,19],\n  \"Galatians\":  [24,21,29,31,26,18],\n  \"Ephesians\":  [23,22,21,32,33,24],\n  \"Philippians\":[30,30,21,23],\n  \"Colossians\": [29,23,25,18],\n  \"1 Thessalonians\":[10,20,13,18,28],\n  \"2 Thessalonians\":[12,17,18],\n  \"1 Timothy\":  [20,15,16,16,25,21],\n  \"2 Timothy\":  [18,26,17,22],\n  \"Titus\":      [16,15,15],\n  \"Philemon\":   [25],\n  \"Hebrews\":    [14,18,19,16,14,20,28,13,28,39,40,29,25],\n  \"James\":      [27,26,18,17,20],\n  \"1 Peter\":    [25,25,22,19,14],\n  \"2 Peter\":    [21,22,18],\n  \"1 John\":     [10,29,24,21,21],\n  \"2 John\":     [13],\n  \"3 John\":     [14],\n  \"Jude\":       [25],\n  \"Revelation\": [20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,27,21]\n};\n\nconst row = $('Fetch indexes').first().json;\nlet bookIndex  = row.book_index;\nlet chapter    = row.chapter;\nlet startVerse = row.start_verse;\nlet counter    = row.counter + 1;\n\nfunction moveToNextChapter(bIdx, ch) {\n  ch += 1;\n  if (ch > books[bIdx][1]) {\n    bIdx += 1;\n    ch = 1;\n    if (bIdx >= books.length) bIdx = 0;\n  }\n  return { bookIndex: bIdx, chapter: ch, startVerse: 1 };\n}\n\nconst bookName      = books[bookIndex][0];\nconst maxChapters   = books[bookIndex][1];\n\n// ── Exact verse count for THIS chapter ───────────────────────────────────\nconst exactMax = verseCount[bookName]\n  ? verseCount[bookName][chapter - 1]\n  : 30; // safe fallback\n\n// If startVerse is already past the chapter end, move to next chapter\nif (startVerse > exactMax) {\n  const next = moveToNextChapter(bookIndex, chapter);\n  bookIndex  = next.bookIndex;\n  chapter    = next.chapter;\n  startVerse = next.startVerse;\n}\n\nconst finalBookName = books[bookIndex][0];\nconst finalMax      = verseCount[finalBookName][chapter - 1];\n\n// ── Cap endVerse at the actual last verse of the chapter ─────────────────\nconst endVerse  = Math.min(startVerse + 9, finalMax);\nconst reference = endVerse === startVerse\n  ? `${finalBookName} ${chapter}:${startVerse}`           // single verse\n  : `${finalBookName} ${chapter}:${startVerse}-${endVerse}`; // range\n\nconst url = `https://bible-api.com/${reference.replace(/ /g, '%20')}?translation=bbe`;\n\n// ── Next state ────────────────────────────────────────────────────────────\nlet nextBookIndex  = bookIndex;\nlet nextChapter    = chapter;\nlet nextStartVerse = endVerse + 1;\n\nif (nextStartVerse > finalMax) {\n  const next    = moveToNextChapter(bookIndex, chapter);\n  nextBookIndex = next.bookIndex;\n  nextChapter   = next.chapter;\n  nextStartVerse = 1;\n}\n\nreturn [{\n  json: {\n    url, reference, counter,\n    bookIndex, chapter, startVerse,\n    bookName: finalBookName,\n    maxChapters: books[bookIndex][1],\n    next_book_index:  nextBookIndex,\n    next_chapter:     nextChapter,\n    next_start_verse: nextStartVerse\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        660
+      ],
+      "id": "a1b5c771-d5d7-4430-bea2-a2d4de49fb69",
+      "name": "Build URL"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        660
+      ],
+      "id": "485943ba-975a-4b6a-81ac-13a7c81afcd3",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a warm and inspiring preacher delivering a daily devotional message.\n\nGiven the following Bible verse:\n\nReference: {{ $json.reference }}\nVerse: {{ $json.text }}\n\nRespond in this exact format:\n\n🕊️ **Our Bread for Today is taken from {{ $json.reference }}**\n\n> \"{{ $json.text }}\"\n**📖 What This Verse Means**\n[Write 2–3 sentences explaining the core message of the verse in simple, heartfelt language. Speak as a preacher addressing their congregation.]\n**🌱 Applying This to Our Daily Lives**\n[Write 3 practical bullet points showing how this verse applies to real, everyday situations. Keep each point encouraging and actionable.]",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1760,
+        660
+      ],
+      "id": "c0d4c51f-87d1-4337-ae69-7f986ad7ea18",
+      "name": "Basic LLM Chain2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.text;\n\nconst cleanText = text\n  // Remove markdown bold\n  .replace(/\\*\\*/g, '')\n  // Remove markdown blockquote\n  .replace(/^>\\s*/gm, '')\n  // Remove bullet points\n  .replace(/^[•\\-\\*]\\s*/gm, '')\n  // Remove emojis\n  .replace(/[\\u{1F300}-\\u{1F9FF}]/gu, '')\n  .replace(/[\\u{2600}-\\u{26FF}]/gu, '')\n  .replace(/[\\u{2700}-\\u{27BF}]/gu, '')\n  // Remove markdown headers\n  .replace(/^#{1,6}\\s*/gm, '')\n  // Remove extra blank lines\n  .replace(/\\n{3,}/g, '\\n\\n')\n  .trim();\n\nreturn [{ json: { text: cleanText } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2140,
+        660
+      ],
+      "id": "783026fb-1441-4128-8fc4-74c718c0f41e",
+      "name": "Clean text"
+    },
+    {
+      "parameters": {
+        "chatId": "@bible_versee",
+        "text": "={{ $('Basic LLM Chain2').item.json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2720,
+        920
+      ],
+      "id": "1912c173-89ff-4475-a772-bdf1e8d5ee29",
+      "name": "Send Telegram Message",
+      "webhookId": "6e7fb4ad-19dd-4b25-8ba6-38da966ef92e",
+      "credentials": {
+        "telegramApi": {
+          "id": "etoOf3GjALYWligN",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT book_index, chapter, start_verse, counter \nFROM bible_progress \nWHERE id = 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        660
+      ],
+      "id": "b007d1e8-e43a-48e1-b3c3-a2ab68b9f0fa",
+      "name": "Fetch indexes",
+      "credentials": {
+        "postgres": {
+          "id": "CqphUm8l3ey1CVoB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        660
+      ],
+      "id": "81d30e2c-1385-4d5b-bd61-2ad50417ebcf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        880
+      ],
+      "id": "9f1e76a5-9847-40ae-b68b-242190fe3731",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "zkE2VWJbR64acQe9",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE bible_progress SET\n  book_index  = {{ $('Build URL').first().json.next_book_index }},\n  chapter     = {{ $('Build URL').first().json.next_chapter }},\n  start_verse = {{ $('Build URL').first().json.next_start_verse }},\n  counter     = {{ $('Build URL').first().json.counter }}\nWHERE id = 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2980,
+        640
+      ],
+      "id": "315e2083-b4dd-44ba-b285-5f2ec736c0dd",
+      "name": "Update indexes",
+      "credentials": {
+        "postgres": {
+          "id": "CqphUm8l3ey1CVoB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/tts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $('Clean text').first().json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2360,
+        660
+      ],
+      "id": "aa7913aa-94fd-4a7f-9019-d2fd6293668c",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "@bible_versee",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "="
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2700,
+        640
+      ],
+      "id": "aaa3b94a-60c5-4d64-8e0d-213df3d29462",
+      "name": "Send an audio file",
+      "webhookId": "1987a149-cb8d-401d-a622-f3cd04cea856",
+      "credentials": {
+        "telegramApi": {
+          "id": "etoOf3GjALYWligN",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Build URL": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "Clean text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean text": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch indexes": {
+      "main": [
+        [
+          {
+            "node": "Build URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch indexes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update indexes": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Send an audio file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Update indexes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an audio file": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b928a821-8696-4cf9-ab3b-42fa7343c237",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a80f5fa3143daaa8f8e7b1498f9a3f7ba2dd8b26d49dd1753d313fc11a7bf0f4"
+  },
+  "id": "susHBZsXJ9DdLj85",
+  "tags": []
+}
